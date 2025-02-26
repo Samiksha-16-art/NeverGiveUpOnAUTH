@@ -26,9 +26,6 @@
     <link rel="stylesheet" href="/static/css/aos.css">
 
     <link rel="stylesheet" href="/static/css/style.css">
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-
     
   </head>
   <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
@@ -59,11 +56,12 @@
               <ul class="site-menu main-menu js-clone-nav mx-auto d-none d-lg-block m-0 p-0">
                 <li><a href="#home-section" class="nav-link">Home</a></li>
                 <li><a href="#courses-section" class="nav-link">Courses</a></li>
-                <li><a href="#programs-section" class="nav-link">Programs</a></li>
-                <li><a href="#teachers-section" class="nav-link">Teachers</a></li>
-                <li><a href="/chatbot" class="nav-link">Dashboard</a></li>
-              
-              </ul>
+                <li><a href="#programs-section" class="nav-link">Features</a></li>
+                <li><a href="#teachers-section" class="nav-link">Ideal For</a></li>
+                <li><a href="#testimonialCarousel" class="nav-link">Testimonials</a></li>
+                <li><a href="#subscription" class="nav-link">Subscribe</a></li>
+            </ul>
+            
             </nav>
           </div>
     
@@ -71,12 +69,8 @@
           <div class="ml-auto w-25">
             <nav class="site-navigation position-relative text-right" role="navigation">
               <ul class="site-menu main-menu site-menu-dark js-clone-nav mr-auto d-none d-lg-block m-0 p-0" style="list-style-type: none; display: flex; padding: 0; margin: 0;">
-                <li class="cta" style="margin-right: 7px;">
-                  <a href="#" class="nav-link" onclick="showForm('login')"><span>LOGIN</span></a>
-                </li>
-                <li class="cta">
-                  <a href="#" class="nav-link" onclick="showForm('signup')"><span>SIGN UP</span></a>
-                </li>
+                
+               
               </ul>
             </nav>
             
@@ -139,29 +133,15 @@
 <div class="form-box" id="login-form" style="display: none;">
   <h3 class="h4 text-black mb-4 align-items-center">Login with Email</h3>
 
-  <!-- Google Login Button (Redirects Directly to Google Login Page) -->
+ <!-- Google Login Button (Styled like the Actual Google Sign In Button) -->
 <div class="google-box">
-    <a href="{{ url_for('login') }}">
-        <button class="g-btn">Sign in with Google</button>
-    </a>
+  <a href="{{ url_for('login') }}">
+      <button class="g-btn">
+          <img src="/static/images/google.png" alt="Google Logo" class="google-logo">
+          Sign in with Google
+      </button>
+  </a>
 </div>
-
-<!-- Optional: Add Some CSS for Styling -->
-<style>
-    .g-btn {
-        background-color: #4285F4;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-    .g-btn:hover {
-        background-color: #357ae8;
-    }
-</style>
-
 
   <!-- Apple Login Button -->
   <div id="appleid-signin" class="custom-button apple-button">
@@ -209,7 +189,7 @@
       }
   </script>
 
-
+  
 
 <!-- CSS Styling -->
 <style>
@@ -251,24 +231,7 @@
       margin-right: 10px;
   }
 
-  .admin-login-container {
-      margin-top: 15px;
-  }
 
-  .admin-btn {
-      background-color: #f44336;
-      color: white;
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-  }
-
-  .admin-btn:hover {
-      background-color: #d32f2f;
-  }
 </style>
 
 
@@ -277,40 +240,35 @@
                 </div>
                 
                 <script> 
-                    document.addEventListener("DOMContentLoaded", function() {
-                        showForm('login'); // Show login form by default
-                    });
+                  document.addEventListener("DOMContentLoaded", function() {
+                    showForm('login'); // Show login form by default when the page loads
+                  });
                 
-                    function handleCredentialResponse(response) {
-                        console.log("🔹 Google Response Token: ", response.credential);
+                  function handleCredentialResponse(response) {
+                    console.log("🔹 Google Response Token: ", response.credential);
                 
-                        try {
-                            const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                            console.log("✅ User Info:", payload);
-                        } catch (error) {
-                            console.error("🚨 Error decoding token:", error);
+                    fetch('/save_email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token: response.credential })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("✅ Login successful! Redirecting to chatbot...");
+                            window.location.href = "/chatbot";  // Ensure this route exists in Flask
+                        } else {
+                            console.error("❌ Login failed!", data.error);
                         }
+                    })
+                    .catch(error => console.error("🚨 Error processing login:", error));
+                  }
                 
-                        // ✅ Prevent multiple redirects
-                        if (sessionStorage.getItem("loggedIn")) {
-                            console.log("🔄 User already logged in, preventing duplicate redirect.");
-                            return;
-                        }
-                
-                        // ✅ Store login state
-                        sessionStorage.setItem("loggedIn", "true");
-                
-                        // ✅ Redirect to chatbot
-                        window.location.href = "/chatbot";  
-                    }
-                
-                    function showForm(formType) {
-                        document.getElementById('signup-form').style.display = formType === 'signup' ? 'block' : 'none';
-                        document.getElementById('login-form').style.display = formType === 'login' ? 'block' : 'none';
-                    }
+                  function showForm(formType) {
+                    document.getElementById('signup-form').style.display = formType === 'signup' ? 'block' : 'none';
+                    document.getElementById('login-form').style.display = formType === 'login' ? 'block' : 'none';
+                  }
                 </script>
-                
-                
                 
               </div>
             </div>
@@ -341,13 +299,13 @@
                     <img src="/static/images/worksheet_kid.jpg" alt="Worksheet Creation" class="img-fluid">
                 </figure>
                 <div class="course-inner-text py-4 px-4">
-                    <div class="meta"><span class="icon-clock-o"></span>4 Lessons / 12 weeks</div>
+                    
                     <h3>Effortless Worksheet Creation</h3>
                     <p>Generate customized phonics worksheets in seconds with AI-powered templates.</p>
                 </div>
                 <div class="d-flex border-top stats">
-                    <div class="py-3 px-4"><span class="icon-users"></span> 303 users</div>
-                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> 2</div>
+                    <div class="py-3 px-4"><span class="icon-users"></span> 1000+ Worksheets Generated</div>
+                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> →</div>
                 </div>
             </div>
         
@@ -356,13 +314,13 @@
                     <img src="/static/images/planner_kid.jpg" alt="Lesson Planner" class="img-fluid">
                 </figure>
                 <div class="course-inner-text py-4 px-4">
-                    <div class="meta"><span class="icon-clock-o"></span>4 Lessons / 12 weeks</div>
+                    
                     <h3>Smart Lesson Planner</h3>
                     <p>Plan engaging phonics lessons with AI-suggested activities and resources.</p>
                 </div>
                 <div class="d-flex border-top stats">
-                    <div class="py-3 px-4"><span class="icon-users"></span> 207 users</div>
-                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> 2</div>
+                    <div class="py-3 px-4"><span class="icon-users"></span> 1000+ Events Hosted</div>
+                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> →</div>
                 </div>
             </div>
         
@@ -371,13 +329,13 @@
                     <img src="/static/images/flashcard_kid.jpg" alt="Flashcard Creation" class="img-fluid">
                 </figure>
                 <div class="course-inner-text py-4 px-4">
-                    <div class="meta"><span class="icon-clock-o"></span>4 Lessons / 12 weeks</div>
+                    
                     <h3>Interactive Flashcard Creation</h3>
                     <p>Design and download phonics flashcards instantly for fun and effective learning.</p>
                 </div>
                 <div class="d-flex border-top stats">
-                    <div class="py-3 px-4"><span class="icon-users"></span> 193 users</div>
-                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> 2</div>
+                    <div class="py-3 px-4"><span class="icon-users"></span> 1000+ Flashcards Generated</div>
+                    <div class="py-3 px-4 w-25 ml-auto border-left"><span class="icon-chat"></span> →</div>
                 </div>
             </div>
         
@@ -416,42 +374,48 @@
     <div class="site-section" id="programs-section">
       <div class="container">
         <div class="row mb-5 justify-content-center">
-          <div class="col-lg-7 text-center" data-aos="fade-up" data-aos-delay="">
+          <div class="col-lg-7 text-center" data-aos="fade-up">
             <h2 class="section-title">Why Educators Love Our AI-Powered Phonics Tools</h2>
           </div>
         </div>
     
+        <!-- AI-Powered Worksheet Creation -->
         <div class="row mb-5 align-items-center">
-          <div class="col-lg-7 mb-5" data-aos="fade-up" data-aos-delay="100">
-            <img src="/static/images/undraw_youtube_tutorial.svg" alt="Image" class="img-fluid">
+          <div class="col-lg-6 blob-container blob-green" data-aos="fade-up" data-aos-delay="100">
+            <img src="/static/images/ai_powered.jpg" alt="AI Worksheet Creation" class="feature-img">
           </div>
-          <div class="col-lg-4 ml-auto" data-aos="fade-up" data-aos-delay="200">
-            <h2 class="text-black mb-4">📄 AI-Powered Worksheet Creation</h2>
-            <p class="mb-4">✨ Say goodbye to hours of prep! Instantly create fun, engaging phonics worksheets 🎉 tailored to different skill levels. Whether it’s letter sounds, blending, or word formation, our AI does the work so you can focus on teaching! 📝🚀</p>
+          <div class="col-lg-5 ml-auto text-box" data-aos="fade-up" data-aos-delay="200">
+            <h2>📄 AI-Powered Worksheet Creation</h2>
+            <p>✨ Instantly create fun, engaging phonics worksheets 🎉 tailored to different skill levels. Let AI handle the prep so you can focus on teaching! 📝🚀</p>
           </div>
         </div>
     
+        <!-- Structured Learning with AI Planner -->
         <div class="row mb-5 align-items-center">
-          <div class="col-lg-7 mb-5 order-1 order-lg-2" data-aos="fade-up" data-aos-delay="100">
-            <img src="/static/images/undraw_teaching.svg" alt="Image" class="img-fluid">
+          <div class="col-lg-6 order-1 order-lg-2 blob-container blob-pink" data-aos="fade-up" data-aos-delay="100">
+            <img src="/static/images/structuredlearning.jpg" alt="Structured Learning" class="feature-img">
           </div>
-          <div class="col-lg-4 mr-auto order-2 order-lg-1" data-aos="fade-up" data-aos-delay="200">
-            <h2 class="text-black mb-4">📅 Structured Learning with AI Planner</h2>
-            <p class="mb-4">📖 No more guesswork! Our AI-powered planner organizes phonics lessons into a structured, easy-to-follow plan 🎯. Get daily activities, worksheets, and flashcards mapped out for a smooth learning journey! 🏆💡</p>
+          <div class="col-lg-5 mr-auto order-2 order-lg-1 text-box" data-aos="fade-up" data-aos-delay="200">
+            <h2>📅 Structured Learning with AI Planner</h2>
+            <p>📖 Our AI-powered planner organizes phonics lessons into a structured, easy-to-follow plan 🎯. Get daily activities, worksheets, and flashcards mapped out! 🏆💡</p>
           </div>
         </div>
     
+        <!-- Interactive Phonics Flashcards -->
         <div class="row mb-5 align-items-center">
-          <div class="col-lg-7 mb-5" data-aos="fade-up" data-aos-delay="100">
-            <img src="/static/images/undraw_teacher.svg" alt="Image" class="img-fluid">
+          <div class="col-lg-6 blob-container blob-blue" data-aos="fade-up" data-aos-delay="100">
+            <img src="/static/images/interactive_phonics.jpg" alt="Interactive Phonics" class="feature-img">
           </div>
-          <div class="col-lg-4 ml-auto" data-aos="fade-up" data-aos-delay="200">
-            <h2 class="text-black mb-4">🎴 Interactive Phonics Flashcards</h2>
-            <p class="mb-4">🃏 Turn learning into playtime! Our AI-generated flashcards keep kids engaged with fun visuals, sounds, and activities. From letter recognition to word-building, phonics has never been this exciting! 🎶✨</p>
+          <div class="col-lg-5 ml-auto text-box" data-aos="fade-up" data-aos-delay="200">
+            <h2>🎴 Interactive Phonics Flashcards</h2>
+            <p>🃏 Turn learning into playtime! Our AI-generated flashcards keep kids engaged with fun visuals, sounds, and activities. Phonics has never been this exciting! 🎶✨</p>
           </div>
         </div>
       </div>
     </div>
+    
+    
+    
     
     
 
@@ -461,7 +425,7 @@
         <div class="row mb-5 justify-content-center">
           <div class="col-lg-7 mb-5 text-center"  data-aos="fade-up" data-aos-delay="">
             <h2 class="section-title">👩‍🏫 Who Is This For?</h2>
-            <p class="mb-5">🎉 100+ Educators Already Using AI to Teach Smarter – Join Them Today!
+            <p class="mb-5">🎉 1000+ Educators Already Using AI to Teach Smarter – Join Them Today!
             </p>
           </div>
         </div>
@@ -472,7 +436,7 @@
             <div class="teacher text-center">
               <img src="/static/images/teacher2.jpg" alt="Image" class="img-fluid w-57 rounded-circle mx-auto mb-4">
               <div class="py-2">
-                <h3 class="text-black">✅ Jolly Phonics & Grammar Educators</h3>
+                <h3 class="text-black">✅ Jolly Phonics Educators</h3>
                 
               </div>
             </div>
@@ -483,7 +447,7 @@
               <img src="/static/images/teacher .jpg" alt="Image" class="img-fluid w-51 rounded-circle mx-auto mb-4">
               <div class="py-2">
                 <br>
-                <h3 class="text-black">✅ ECCEd & Early Childhood Teachers</h3>
+                <h3 class="text-black">✅ Women in Phonics Teaching</h3>
                 
               </div>
             </div>
@@ -501,6 +465,10 @@
         </div>
       </div>
     </div>
+
+
+
+   
 
   <!-- Bootstrap Testimonial Carousel -->
   
@@ -654,19 +622,19 @@
       <div class="plan free">
           <h3>Free Plan</h3>
           <p>Access to basic phonics content</p>
-          <p class="price">$0/month</p>
+          <p class="price">₹0/month</p>
           <button onclick="subscribe('Free', 0)">Subscribe</button>
       </div>
       <div class="plan monthly">
           <h3>Monthly Plan</h3>
           <p>Full access to phonics resources</p>
-          <p class="price">$1/month</p>
+          <p class="price">₹99/month</p>
           <button onclick="subscribe('Monthly', 10)">Subscribe</button>
       </div>
       <div class="plan yearly">
           <h3>Yearly Plan</h3>
           <p>Save more with an annual subscription</p>
-          <p class="price">$100/year</p>
+          <p class="price">₹299/year</p>
           <button onclick="subscribe('Yearly', 100)">Subscribe</button>
       </div>
   </div>
@@ -679,32 +647,24 @@ function subscribe(plan, amount) {
 }
 </script>
 
-<script>
-    function logout() {
-        sessionStorage.removeItem("loggedIn");
-        window.location.href = "/logout";
-    }
-    
-</script>
+
 
     
    
-<!-- Footer Section -->
+<!-- Footer Section 
 <footer class="footer-section bg-white">
   <div class="container">
     <div class="row">
       <div class="col-md-4">
         <h3>About LevelUP</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Porro consectetur ut hic ipsum et veritatis corrupti. Itaque eius soluta optio dolorum temporibus in, atque, quos fugit sunt sit quaerat dicta.</p>
+        <p>LevelUp Online Education is dedicated to empowering educators and learners through specialized training programs. Our offerings include the Jolly Phonics Teacher Training Course, Grammar Teacher Training Course, Early Childhood Care and Education (ECCE) program, and Digital Entrepreneurship Course. Each course is meticulously designed to provide comprehensive knowledge and practical skills.</p>
       </div>
 
       <div class="col-md-3 ml-auto">
         <h3>Links</h3>
         <ul class="list-unstyled footer-links">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Courses</a></li>
-          <li><a href="#">Programs</a></li>
-          <li><a href="#">Teachers</a></li>
+          <li>Visit Our website for more <a href="https://www.leveluponline.in/">➥</a></li>
+       
         </ul>
       </div>
 
@@ -719,13 +679,26 @@ function subscribe(plan, amount) {
         </form>
       </div>
 
+    </div>-->
+
+    <div class="trusted-container">
+      <!-- Google Logo Badge -->
+      <div class="trusted-banner">
+        Trusted by  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Logo">
+      </div>
+    
+      <!-- Visit Our Website with Logo -->
+      <div class="website-banner">
+        <img src="/static/images/logo_trans.png" alt="Website Logo">
+        <a href="https://www.leveluponline.in/">Visit Our Website</a>
+      </div>
     </div>
 
     <div class="row pt-5 mt-5 text-center">
       <div class="col-md-12">
         <div class="border-top pt-5">
           <p>
-            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved  <i class="icon-heart" aria-hidden="true"></i>
+            Copyright &copy;<script>document.write(new Date().getFullYear());</script> LevelUP. All rights reserved  <i class="icon-heart" aria-hidden="true"></i>
             <a href="https://colorlib.com" target="_blank" ></a>
           </p>
         </div>
