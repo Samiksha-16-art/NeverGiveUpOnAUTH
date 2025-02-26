@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to Your Dashboard</h2>
+        <div id="user-info"></div>
+        <button id="logoutBtn">Logout</button>
+    </div>
+
+    <script>
+        // Fetch user data
+        fetch("/check-auth")
+            .then(response => response.json())
+            .then(data => {
+                if (!data.authenticated) {
+                    window.location.href = "/";
+                } else {
+                    document.getElementById("user-info").innerHTML = `
+                        <p>Name: ${data.user.name}</p>
+                        <p>Email: ${data.user.email}</p>
+                        <img src="${data.user.picture}" alt="Profile Picture">
+                    `;
+                }
+            });
+
+        document.getElementById("logoutBtn").addEventListener("click", function() {
+            window.location.href = "/logout";
+        });
+    </script>
+</body>
+</html>
